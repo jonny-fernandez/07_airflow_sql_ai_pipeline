@@ -1,0 +1,1527 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Airflow SQL + AI Pipeline Report
+</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    max-width: 1200px;
+
+    margin:
+        40px
+        auto;
+
+    padding:
+        0
+        24px
+        60px;
+
+    color:
+        #1f2937;
+
+    background:
+        #f8fafc;
+}
+
+h1 {
+    margin-bottom:
+        4px;
+
+    color:
+        #111827;
+}
+
+h2 {
+    margin-top:
+        42px;
+
+    border-bottom:
+        2px solid #e5e7eb;
+
+    padding-bottom:
+        8px;
+
+    color:
+        #111827;
+}
+
+.subtitle {
+    color:
+        #64748b;
+
+    margin-bottom:
+        28px;
+}
+
+.cards {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                160px,
+                1fr
+            )
+        );
+
+    gap:
+        14px;
+}
+
+.card {
+    background:
+        white;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        10px;
+
+    padding:
+        18px;
+}
+
+.card-value {
+    font-size:
+        28px;
+
+    font-weight:
+        bold;
+
+    margin-top:
+        8px;
+
+    color:
+        #111827;
+}
+
+.card-label {
+    color:
+        #64748b;
+
+    font-size:
+        14px;
+}
+
+.card-detail {
+    color:
+        #64748b;
+
+    margin-top:
+        4px;
+
+    font-size:
+        14px;
+}
+
+.success {
+    font-weight:
+        bold;
+}
+
+.note {
+    background:
+        white;
+
+    border-left:
+        4px solid #64748b;
+
+    padding:
+        14px;
+
+    margin:
+        18px 0;
+
+    line-height:
+        1.5;
+}
+
+
+/* =========================================================
+   PIPELINE FLOW DIAGRAM
+   ========================================================= */
+
+.flow {
+    background:
+        white;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        12px;
+
+    padding:
+        28px;
+
+    margin-top:
+        18px;
+}
+
+.flow-box {
+    background:
+        #f8fafc;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius:
+        8px;
+
+    padding:
+        12px 18px;
+
+    text-align:
+        center;
+
+    font-weight:
+        600;
+
+    max-width:
+        380px;
+
+    margin:
+        0 auto;
+}
+
+.flow-primary {
+    background:
+        #eef2ff;
+
+    border-color:
+        #a5b4fc;
+}
+
+.flow-ai {
+    background:
+        #f0fdf4;
+
+    border-color:
+        #86efac;
+}
+
+.flow-review {
+    background:
+        #fff7ed;
+
+    border-color:
+        #fdba74;
+}
+
+.flow-arrow {
+    text-align:
+        center;
+
+    font-size:
+        24px;
+
+    padding:
+        8px 0;
+
+    color:
+        #64748b;
+}
+
+.flow-split {
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        28px;
+
+    align-items:
+        start;
+
+    margin:
+        10px 0;
+}
+
+.flow-column {
+    text-align:
+        center;
+}
+
+.flow-small {
+    color:
+        #64748b;
+
+    font-size:
+        13px;
+
+    margin-top:
+        6px;
+}
+
+.flow-label {
+    text-align:
+        center;
+
+    font-size:
+        12px;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        0.04em;
+
+    color:
+        #64748b;
+
+    margin-bottom:
+        7px;
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.data-table {
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    background:
+        white;
+
+    margin-top:
+        12px;
+
+    font-size:
+        14px;
+}
+
+.data-table th,
+.data-table td {
+    border:
+        1px solid #e5e7eb;
+
+    padding:
+        9px 10px;
+
+    text-align:
+        left;
+
+    vertical-align:
+        top;
+}
+
+.data-table th {
+    background:
+        #f1f5f9;
+
+    font-weight:
+        600;
+}
+
+.data-table tr:nth-child(even) {
+    background:
+        #fafafa;
+}
+
+
+/* =========================================================
+   SMALL SUMMARY BLOCKS
+   ========================================================= */
+
+.summary-grid {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap:
+        14px;
+
+    margin-top:
+        16px;
+}
+
+.summary-box {
+    background:
+        white;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        8px;
+
+    padding:
+        14px;
+}
+
+.summary-title {
+    color:
+        #64748b;
+
+    font-size:
+        13px;
+
+    margin-bottom:
+        5px;
+}
+
+.summary-value {
+    font-size:
+        20px;
+
+    font-weight:
+        600;
+}
+
+
+@media (
+    max-width:
+        700px
+) {
+
+    .flow-split {
+        grid-template-columns:
+            1fr;
+    }
+
+    body {
+        padding:
+            0
+            14px
+            40px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     TITLE
+     ======================================================= -->
+
+<h1>
+Airflow SQL + AI Data Pipeline
+</h1>
+
+<div class="subtitle">
+Portfolio execution report — latest successful pipeline run
+</div>
+
+
+<!-- =======================================================
+     EXECUTIVE METRICS
+     ======================================================= -->
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-label">
+        Pipeline Status
+        </div>
+
+        <div class="card-value success">
+        SUCCESS
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        Processed Tickets
+        </div>
+
+        <div class="card-value">
+        50
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        Deterministic
+        </div>
+
+        <div class="card-value">
+        42
+        </div>
+
+        <div class="card-detail">
+        84.0%
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        AI Candidates
+        </div>
+
+        <div class="card-value">
+        8
+        </div>
+
+        <div class="card-detail">
+        16.0%
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        Human Review
+        </div>
+
+        <div class="card-value">
+        2
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        AI Failures
+        </div>
+
+        <div class="card-value">
+        0
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     ENGINEERING PRINCIPLE
+     ======================================================= -->
+
+<h2>
+Engineering Principle
+</h2>
+
+<div class="note">
+
+<strong>
+Deterministic-first architecture:
+</strong>
+
+Airflow orchestrates the workflow.
+SQL and Python perform deterministic processing,
+validation, joins, counts, transformations, and business rules.
+
+AI is used only for records where semantic interpretation
+adds value.
+
+</div>
+
+
+<!-- =======================================================
+     VISUAL ARCHITECTURE
+     ======================================================= -->
+
+<div class="flow">
+
+    <div class="flow-label">
+    Source
+    </div>
+
+    <div class="flow-box">
+    Synthetic Source Data
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    Schema + Data Quality Validation
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    SQLite Staging
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    SQL Transformations
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box flow-primary">
+    Deterministic Classification
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-split">
+
+        <div class="flow-column">
+
+            <div class="flow-label">
+            Resolved Deterministically
+            </div>
+
+            <div class="flow-box flow-primary">
+            Resolved Records
+            </div>
+
+            <div class="flow-small">
+            42 tickets
+            /
+            84.0%
+            </div>
+
+        </div>
+
+
+        <div class="flow-column">
+
+            <div class="flow-label">
+            Semantic Escalation
+            </div>
+
+            <div class="flow-box flow-ai">
+            AI Candidates
+            </div>
+
+            <div class="flow-small">
+            8 tickets
+            /
+            16.0%
+            </div>
+
+
+            <div class="flow-arrow">
+            ↓
+            </div>
+
+
+            <div class="flow-box flow-ai">
+            Structured AI Review
+            </div>
+
+
+            <div class="flow-arrow">
+            ↓
+            </div>
+
+
+            <div class="flow-split">
+
+                <div class="flow-column">
+
+                    <div class="flow-box flow-ai">
+                    AI Accepted
+                    </div>
+
+                    <div class="flow-small">
+                    6 tickets
+                    </div>
+
+                </div>
+
+
+                <div class="flow-column">
+
+                    <div class="flow-box flow-review">
+                    Human Review / Fallback
+                    </div>
+
+                    <div class="flow-small">
+                    2 review
+                    /
+                    0 fallback
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    Final Output Tables
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    Analytical Summaries
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box">
+    Ground-Truth Evaluation
+    </div>
+
+
+    <div class="flow-arrow">
+    ↓
+    </div>
+
+
+    <div class="flow-box flow-primary">
+    Airflow Completion
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     LATEST EXECUTION
+     ======================================================= -->
+
+<h2>
+Latest Execution
+</h2>
+
+<div class="summary-grid">
+
+    <div class="summary-box">
+
+        <div class="summary-title">
+        Run ID
+        </div>
+
+        <div>
+        manual__2026-09-15T02:17:58.680164+00:00
+        </div>
+
+    </div>
+
+
+    <div class="summary-box">
+
+        <div class="summary-title">
+        Started
+        </div>
+
+        <div>
+        2026-09-15T02:18:12.175112+00:00
+        </div>
+
+    </div>
+
+
+    <div class="summary-box">
+
+        <div class="summary-title">
+        Completed
+        </div>
+
+        <div>
+        2026-09-15T02:18:20.380572+00:00
+        </div>
+
+    </div>
+
+</div>
+
+
+<table class="data-table">
+
+<tr>
+    <th>
+    Metric
+    </th>
+
+    <th>
+    Value
+    </th>
+</tr>
+
+
+<tr>
+    <td>
+    Source Rows
+    </td>
+
+    <td>
+    50
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    Clean Rows
+    </td>
+
+    <td>
+    50
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    Quarantined Rows
+    </td>
+
+    <td>
+    0
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    Deterministic Classifications
+    </td>
+
+    <td>
+    42
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    AI Candidates
+    </td>
+
+    <td>
+    8
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    AI Successful Results
+    </td>
+
+    <td>
+    8
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    AI Failures
+    </td>
+
+    <td>
+    0
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+    Human Review
+    </td>
+
+    <td>
+    2
+    </td>
+</tr>
+
+</table>
+
+
+<!-- =======================================================
+     FINAL HANDLING
+     ======================================================= -->
+
+<h2>
+Final Handling
+</h2>
+
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>final_handling</th>
+      <th>ticket_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DETERMINISTIC</td>
+      <td>42</td>
+    </tr>
+    <tr>
+      <td>AI_ACCEPTED</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>HUMAN_REVIEW</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- =======================================================
+     CATEGORY RESULTS
+     ======================================================= -->
+
+<h2>
+Category Results
+</h2>
+
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>category</th>
+      <th>ticket_count</th>
+      <th>deterministic</th>
+      <th>ai_enriched</th>
+      <th>human_review</th>
+      <th>ai_failure_fallback</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TRAINING</td>
+      <td>17</td>
+      <td>17</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>IT_SUPPORT</td>
+      <td>12</td>
+      <td>9</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>PAYROLL</td>
+      <td>11</td>
+      <td>8</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>ONBOARDING</td>
+      <td>8</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>HUMAN_REVIEW</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- =======================================================
+     EVALUATION
+     ======================================================= -->
+
+<h2>
+Ground-Truth Evaluation
+</h2>
+
+<div class="note">
+
+Expected classifications and routing decisions were locked
+before AI execution so model results could be evaluated
+against known synthetic ground truth rather than judged
+after the fact.
+
+</div>
+
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>metric</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>evaluated_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>deterministic_accuracy_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>ai_candidate_precision_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>ai_candidate_recall_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>ai_category_accuracy_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>human_review_recall_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>final_handling_accuracy_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>overall_category_accuracy_pct</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>false_positive_ai_escalations</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>false_negative_ai_escalations</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>mismatch_rows</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- =======================================================
+     HUMAN REVIEW
+     ======================================================= -->
+
+<h2>
+Human Review Queue
+</h2>
+
+<div class="note">
+
+Human review is a valid pipeline outcome.
+High model confidence does not override deterministic
+handling rules when evidence is insufficient.
+
+</div>
+
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>ticket_id</th>
+      <th>ticket_text</th>
+      <th>review_reason</th>
+      <th>proposed_category</th>
+      <th>confidence</th>
+      <th>review_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>35</td>
+      <td>My checklist still says incomplete.</td>
+      <td>AI_UNRESOLVED_CATEGORY</td>
+      <td>UNRESOLVED</td>
+      <td>0.99</td>
+      <td>PENDING</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td>My checklist still says incomplete.</td>
+      <td>AI_UNRESOLVED_CATEGORY</td>
+      <td>UNRESOLVED</td>
+      <td>0.96</td>
+      <td>PENDING</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- =======================================================
+     TASK OBSERVABILITY
+     ======================================================= -->
+
+<h2>
+Task-Level Observability
+</h2>
+
+<div class="note">
+
+Each pipeline stage records execution metrics against the
+same Airflow-aligned pipeline run ID.
+
+</div>
+
+<table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>task_name</th>
+      <th>metric_name</th>
+      <th>metric_value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ai_enrichment</td>
+      <td>api_calls</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>ai_enrichment</td>
+      <td>candidate_rows</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>ai_enrichment</td>
+      <td>failed_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>ai_enrichment</td>
+      <td>reused_results</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>ai_enrichment</td>
+      <td>successful_rows</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>ai_enriched_tickets</td>
+      <td>6.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>ai_failure_fallback_tickets</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>deterministic_tickets</td>
+      <td>42.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>human_review_tickets</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>row_count_match</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>summarized_tickets</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>build_summaries</td>
+      <td>summary_rows</td>
+      <td>47.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>inserted_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>invalid_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>source_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>unchanged_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>updated_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>ingest_source</td>
+      <td>valid_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>ai_candidate_pct</td>
+      <td>16.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>ai_candidate_rows</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>clean_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>deterministic_pct</td>
+      <td>84.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>deterministic_rows</td>
+      <td>42.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>overlap_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>route_tickets</td>
+      <td>unrouted_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>transform_tickets</td>
+      <td>blank_normalized_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>transform_tickets</td>
+      <td>clean_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>transform_tickets</td>
+      <td>duplicate_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>transform_tickets</td>
+      <td>row_count_match</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>transform_tickets</td>
+      <td>staging_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>ai_accepted_rows</td>
+      <td>6.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>ai_failure_fallback_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>deterministic_rows</td>
+      <td>42.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>duplicate_final_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>final_rows</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>human_review_rows</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>invalid_ai_output_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>missing_ai_result_rows</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>validate_and_route</td>
+      <td>orphan_final_rows</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- =======================================================
+     ENGINEERING CONTROLS
+     ======================================================= -->
+
+<h2>
+Pipeline Controls Demonstrated
+</h2>
+
+<div class="note">
+
+<ul>
+
+<li>
+Idempotent ingestion and SQL transformations
+</li>
+
+<li>
+Safe reruns without duplicate business records
+</li>
+
+<li>
+Airflow-aligned pipeline run identity
+</li>
+
+<li>
+Airflow task dependencies and retry handling
+</li>
+
+<li>
+Selective AI escalation rather than universal AI use
+</li>
+
+<li>
+Structured AI outputs
+</li>
+
+<li>
+Deterministic validation of model output
+</li>
+
+<li>
+Low-confidence human-review routing
+</li>
+
+<li>
+Unsupported / unresolved human-review routing
+</li>
+
+<li>
+AI-failure fallback handling
+</li>
+
+<li>
+Pipeline failure tracking
+</li>
+
+<li>
+Data-quality quarantine without pipeline failure
+</li>
+
+<li>
+SQL row-count reconciliation
+</li>
+
+<li>
+Duplicate and orphan detection
+</li>
+
+<li>
+Ground-truth evaluation
+</li>
+
+<li>
+False-positive and false-negative AI-routing evaluation
+</li>
+
+<li>
+Task-level execution metrics
+</li>
+
+<li>
+Automated unit tests
+</li>
+
+<li>
+Automated SQLite integration tests
+</li>
+
+<li>
+Automated AI-routing tests
+</li>
+
+<li>
+Mocked-AI end-to-end pipeline test
+</li>
+
+<li>
+Automated Airflow DAG validation
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- =======================================================
+     TESTING SUMMARY
+     ======================================================= -->
+
+<h2>
+Automated Testing
+</h2>
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-label">
+        Automated Tests
+        </div>
+
+        <div class="card-value">
+        20
+        </div>
+
+        <div class="card-detail">
+        20 passed
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        Test Types
+        </div>
+
+        <div class="card-value">
+        5
+        </div>
+
+        <div class="card-detail">
+        Unit, integration, AI routing,
+        end-to-end, DAG
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-label">
+        Production API Calls
+        </div>
+
+        <div class="card-value">
+        0
+        </div>
+
+        <div class="card-detail">
+        During automated tests
+        </div>
+
+    </div>
+
+</div>
+
+
+</body>
+
+</html>

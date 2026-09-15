@@ -1,0 +1,3 @@
+ticket_id,ticket_text,review_reason,proposed_category,confidence,review_status
+35,My checklist still says incomplete.,AI_UNRESOLVED_CATEGORY,UNRESOLVED,0.99,PENDING
+43,My checklist still says incomplete.,AI_UNRESOLVED_CATEGORY,UNRESOLVED,0.96,PENDING

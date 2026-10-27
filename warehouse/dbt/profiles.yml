@@ -1,0 +1,12 @@
+project07_tickets:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('P07_DB_HOST', 'postgres') }}"
+      port: "{{ env_var('P07_DB_PORT', '5432') | int }}"
+      user: "{{ env_var('P07_DB_USER', 'portfolio') }}"
+      password: "{{ env_var('P07_DB_PASSWORD', 'portfolio_dev_only') }}"
+      dbname: "{{ env_var('P07_DB_NAME', 'project07') }}"
+      schema: staging
+      threads: 2

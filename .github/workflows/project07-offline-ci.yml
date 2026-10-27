@@ -1,0 +1,52 @@
+name: Project 07 Offline Validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-ubuntu-py312:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AIRFLOW_HOME: ${{ runner.temp }}/project07-airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Airflow with Python 3.12 constraints
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'apache-airflow==3.3.1' --constraint 'https://raw.githubusercontent.com/apache/airflow/constraints-3.3.1/constraints-3.12.txt'
+          python -m pip install 'openai==3.1.0' 'pandas==3.0.5' 'python-dotenv==1.2.2' 'pytest==9.1.1'
+      - name: Initialize isolated Airflow database
+        run: airflow db migrate
+      - name: Run original and upgraded offline tests
+        run: python -m pytest -o addopts= -q
+
+  offline-windows-py312:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install offline test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest==9.1.1 pandas==3.0.5 openai==3.1.0 python-dotenv==1.2.2
+      - name: Run non-Airflow offline tests
+        shell: pwsh
+        run: |
+          python -m pytest -o addopts= -q tests/test_core_unit.py tests/test_pipeline_integration.py tests/test_final_routing_integration.py tests/test_end_to_end_pipeline.py tests/test_cp2_quality_report_decimal.py tests/test_cp2_warehouse_contracts.py tests/test_cp3_warehouse_quality.py tests/test_cp3_runner_import.py

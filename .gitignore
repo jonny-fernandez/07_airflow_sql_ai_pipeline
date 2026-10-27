@@ -83,3 +83,20 @@ desktop.ini
 *.bak
 *.backup
 *~
+
+# Local CP1-CP4 patch/install/recovery folders (not product code)
+CP1_Recovery/
+CP2_Patch/
+CP2_Decimal_Fix/
+CP3_Patch/
+CP3_Import_Repair/
+CP4_Release_Patch/
+payload/
+Project07_CP*_Apply*.ps1
+README_FIRST.txt
+
+# Generated data/reporting (the warehouse has its own nested .gitignore)
+warehouse/artifacts/
+warehouse/dbt/target/
+warehouse/dbt/logs/
+warehouse/dbt/dbt_packages/

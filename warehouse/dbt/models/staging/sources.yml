@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: ticket_raw
+    schema: raw
+    tables:
+      - name: incoming_tickets
+        description: Immutable identifier with change-tracked synthetic ticket fields
+        columns:
+          - name: ticket_id
+            data_tests: [not_null, unique]
+          - name: created_date
+            data_tests: [not_null]
+          - name: content_sha256
+            data_tests: [not_null]
+      - name: ticket_outcomes
+        description: Synthetic resolved and human-review classification outcomes
+        columns:
+          - name: ticket_id
+            data_tests:
+              - not_null
+              - unique
+              - relationships:
+                  to: source('ticket_raw', 'incoming_tickets')
+                  field: ticket_id
+          - name: final_handling
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values: [DETERMINISTIC, AI_ACCEPTED, HUMAN_REVIEW]

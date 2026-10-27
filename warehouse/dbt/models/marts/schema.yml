@@ -1,0 +1,35 @@
+version: 2
+models:
+  - name: fct_ticket_outcomes
+    description: One row per synthetic ticket; deterministic, AI accepted, and review cases included
+    columns:
+      - name: ticket_id
+        data_tests: [not_null, unique]
+      - name: ticket_sk
+        data_tests: [not_null, unique]
+      - name: created_date
+        data_tests: [not_null]
+      - name: final_handling
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [DETERMINISTIC, AI_ACCEPTED, HUMAN_REVIEW]
+  - name: dim_category
+    columns:
+      - name: category
+        data_tests: [not_null, unique]
+  - name: daily_ticket_metrics
+    columns:
+      - name: created_date
+        data_tests: [not_null, unique]
+  - name: category_metrics
+    columns:
+      - name: category
+        data_tests: [not_null, unique]
+  - name: overall_ticket_metrics
+    description: All 50 synthetic tickets are the denominator including those pending human review
+  - name: ticket_daily_trends
+    description: Running totals and daily comparisons over observed (nonempty) ticket dates, not calendar periods
+    columns:
+      - name: created_date
+        data_tests: [not_null, unique]

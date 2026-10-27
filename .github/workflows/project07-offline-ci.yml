@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      AIRFLOW_HOME: ${{ runner.temp }}/project07-airflow
+      AIRFLOW_HOME: ${{ github.workspace }}/.airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
     steps:
       - uses: actions/checkout@v4
